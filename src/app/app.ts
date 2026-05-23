@@ -1,12 +1,17 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { QrLocationScannerComponent } from './components/qr-location-scanner/qr-location-scanner';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [
+    MatToolbarModule,
+    QrLocationScannerComponent
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
-  protected readonly title = signal('qr-location-scanner');
+export class AppComponent {
+  title = 'qr-location-scanner';
 }

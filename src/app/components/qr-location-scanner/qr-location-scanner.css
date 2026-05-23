@@ -1,0 +1,115 @@
+.scanner-card {
+  max-width: 650px;
+  margin: 30px auto;
+  padding: 16px;
+}
+
+.scanner-box {
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #ddd;
+}
+
+zxing-scanner {
+  width: 100%;
+  min-height: 350px;
+  display: block;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffebeb 100%);
+  color: #c53030;
+  text-align: center;
+  min-height: 350px;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.error-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  color: #e53e3e;
+  animation: shake 0.6s ease-in-out;
+}
+
+.error-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #9b2c2c;
+  font-family: 'Outfit', 'Inter', sans-serif;
+}
+
+.error-message {
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 450px;
+  margin: 0 0 24px 0;
+  color: #742a2a;
+}
+
+.retry-button {
+  border-radius: 24px !important;
+  padding: 0 24px !important;
+  height: 44px !important;
+  line-height: 42px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background-color: transparent !important;
+  border-color: #e53e3e !important;
+  color: #e53e3e !important;
+}
+
+.retry-button:hover {
+  background-color: #e53e3e !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 62, 98, 0.2);
+}
+
+.retry-button:active {
+  transform: translateY(0);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.result-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.result-box p {
+  word-break: break-all;
+}
+
+mat-card-actions {
+  display: flex;
+  gap: 10px;
+}

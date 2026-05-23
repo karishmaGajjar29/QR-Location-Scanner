@@ -1,0 +1,65 @@
+<mat-card class="scanner-card">
+
+  <mat-card-header>
+    <mat-card-title>QR Location Scanner</mat-card-title>
+    <mat-card-subtitle>
+      Scan QR code and open Google Maps direction
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+
+    <div class="scanner-box" *ngIf="scannerEnabled">
+      <zxing-scanner
+        *ngIf="!errorMessage"
+        [enable]="scannerEnabled"
+        [formats]="allowedFormats"
+        [device]="selectedDevice"
+        (camerasFound)="onCamerasFound($event)"
+        (camerasNotFound)="onCamerasNotFound()"
+        (permissionResponse)="onPermissionResponse($event)"
+        (scanError)="onScanError($event)"
+        (scanSuccess)="onScanSuccess($event)">
+      </zxing-scanner>
+
+      <div class="error-container" *ngIf="errorMessage">
+        <mat-icon class="error-icon">videocam_off</mat-icon>
+        <h3 class="error-title">Camera Access Error</h3>
+        <p class="error-message">{{ errorMessage }}</p>
+        <button mat-stroked-button color="warn" class="retry-button" (click)="retryScanner()">
+          <mat-icon>refresh</mat-icon>
+          Retry Camera
+        </button>
+      </div>
+    </div>
+
+    <div class="result-box" *ngIf="scannedValue">
+      <h3>Scanned Result</h3>
+      <p>{{ scannedValue }}</p>
+    </div>
+
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+
+    <button
+      mat-raised-button
+      color="primary"
+      *ngIf="destination"
+      (click)="openDirection()">
+      <mat-icon>map</mat-icon>
+      Open Map
+    </button>
+
+    <button
+      mat-raised-button
+      color="accent"
+      *ngIf="scannedValue"
+      (click)="scanAgain()">
+      <mat-icon>qr_code_scanner</mat-icon>
+      Scan Again
+    </button>
+
+  </mat-card-actions>
+
+</mat-card>
