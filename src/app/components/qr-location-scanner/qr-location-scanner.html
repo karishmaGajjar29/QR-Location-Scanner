@@ -1,14 +1,18 @@
-<mat-card class="scanner-card">
+<mat-card class="scanner-card card-glow">
 
   <mat-card-header>
-    <mat-card-title>QR Location Scanner</mat-card-title>
-    <mat-card-subtitle>
-      Scan QR code and open Google Maps direction
-    </mat-card-subtitle>
+    <div class="header-icon-circle">
+      <mat-icon>qr_code_scanner</mat-icon>
+    </div>
+    <div class="header-text">
+      <mat-card-title>Scan Location QR</mat-card-title>
+      <mat-card-subtitle>Scan a location QR code with your camera</mat-card-subtitle>
+    </div>
   </mat-card-header>
 
-  <mat-card-content>
+  <mat-card-content class="scanner-content">
 
+    <!-- Active Camera Scanner Section -->
     <div class="scanner-box" *ngIf="scannerEnabled">
       <zxing-scanner
         *ngIf="!errorMessage"
@@ -22,38 +26,89 @@
         (scanSuccess)="onScanSuccess($event)">
       </zxing-scanner>
 
+      <!-- Camera Error Notification -->
       <div class="error-container" *ngIf="errorMessage">
         <mat-icon class="error-icon">videocam_off</mat-icon>
         <h3 class="error-title">Camera Access Error</h3>
         <p class="error-message">{{ errorMessage }}</p>
-        <button mat-stroked-button color="warn" class="retry-button" (click)="retryScanner()">
+        <button mat-stroked-button color="warn" class="retry-button action-button-hover" (click)="retryScanner()">
           <mat-icon>refresh</mat-icon>
           Retry Camera
         </button>
       </div>
     </div>
 
-    <div class="result-box" *ngIf="scannedValue">
-      <h3>Scanned Result</h3>
-      <p>{{ scannedValue }}</p>
+    <!-- Scanned Details Output Container -->
+    <div class="scanned-results-container animate-fade-in" *ngIf="scannedValue">
+      
+      <!-- Info Details Card -->
+      <div class="scanned-details-info">
+        <h3 class="destination-title">
+          <mat-icon class="inline-icon">location_on</mat-icon>
+          {{ parsedLocation ? parsedLocation.name : 'Scanned Location' }}
+        </h3>
+        
+        <p class="coordinates-text" *ngIf="parsedLocation">
+          <code>{{ parsedLocation.lat }}, {{ parsedLocation.lng }}</code>
+        </p>
+
+        <p class="description-preview" *ngIf="parsedLocation && parsedLocation.description">
+          <strong>Description:</strong> {{ parsedLocation.description }}
+        </p>
+
+        <div class="raw-data-box" *ngIf="!parsedLocation">
+          <span class="raw-data-label">Scanned Data:</span>
+          <code>{{ scannedValue }}</code>
+        </div>
+      </div>
+
+      <!-- Live Map Embed Preview -->
+      <div class="scanned-map-preview" *ngIf="mapPreviewUrl">
+        <iframe 
+          [src]="mapPreviewUrl" 
+          width="100%" 
+          height="100%" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+
     </div>
 
   </mat-card-content>
 
-  <mat-card-actions align="end">
+  <!-- Action Bar -->
+  <mat-card-actions class="scanner-actions">
+    
+    <!-- Copy Google Maps Link -->
+    <button 
+      mat-stroked-button 
+      color="primary" 
+      class="action-button-hover"
+      *ngIf="scannedValue"
+      (click)="copyLink()">
+      <mat-icon>content_copy</mat-icon>
+      Copy Link
+    </button>
 
+    <!-- Open in Google Maps -->
     <button
       mat-raised-button
       color="primary"
+      class="action-button-hover main-action"
       *ngIf="destination"
       (click)="openDirection()">
       <mat-icon>map</mat-icon>
-      Open Map
+      Open Google Maps
     </button>
 
+    <!-- Clear and Scan Again -->
     <button
       mat-raised-button
       color="accent"
+      class="action-button-hover"
       *ngIf="scannedValue"
       (click)="scanAgain()">
       <mat-icon>qr_code_scanner</mat-icon>

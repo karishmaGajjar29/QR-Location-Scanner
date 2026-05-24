@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { BarcodeFormat } from '@zxing/library';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
 
@@ -32,6 +33,10 @@ export class QrLocationScannerComponent {
   errorMessage = '';
   hasPermission?: boolean;
 
+  // New variables for storing parsed QR details and map iframe security
+  parsedLocation: { name: string; lat: number; lng: number; description: string } | null = null;
+  mapPreviewUrl: SafeResourceUrl | null = null;
+
   availableDevices: MediaDeviceInfo[] = [];
   selectedDevice?: MediaDeviceInfo;
 
@@ -41,6 +46,7 @@ export class QrLocationScannerComponent {
 
   constructor(
     private locationMapService: LocationMapService,
+    private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar
   ) {}
 
@@ -103,33 +109,70 @@ export class QrLocationScannerComponent {
     this.scannedValue = result;
     this.scannerEnabled = false;
 
-    const location = this.locationMapService.getLocationFromQr(result);
+    // Try to parse detailed custom URL format first
+    const details = this.locationMapService.parseLocationDetails(result);
 
-    if (!location) {
-      this.snackBar.open('Invalid location QR code', 'Close', {
-        duration: 3000
+    if (!details) {
+      // Fallback to basic location scanning if URL format doesn't match custom specs
+      const location = this.locationMapService.getLocationFromQr(result);
+      if (!location) {
+        this.snackBar.open('No valid Google Maps location found in QR code.', 'Close', {
+          duration: 3500
+        });
+        return;
+      }
+      this.destination = location;
+      this.snackBar.open('Basic Location scanned successfully', 'Close', {
+        duration: 2000
       });
+      this.openDirection();
       return;
     }
 
-    this.destination = location;
+    // Set detailed parsed state
+    this.parsedLocation = details;
+    this.destination = this.locationMapService.buildGoogleMapDirectionUrl(result);
 
-    this.snackBar.open('Location scanned successfully', 'Close', {
+    // Sanitize embed map iframe preview URL: check if we have coordinates, otherwise use address name
+    let rawMapUrl = '';
+    if (details.lat !== 0 || details.lng !== 0) {
+      rawMapUrl = `https://maps.google.com/maps?q=${details.lat},${details.lng}&z=15&output=embed`;
+    } else {
+      rawMapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(details.name)}&z=15&output=embed`;
+    }
+    this.mapPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(rawMapUrl);
+
+    this.snackBar.open('Location details parsed successfully!', 'Close', {
       duration: 2000
     });
-
-    this.openDirection();
   }
 
   openDirection(): void {
     if (!this.destination) return;
-
     this.locationMapService.openGoogleMapDirection(this.destination);
+  }
+
+  copyLink(): void {
+    if (!this.scannedValue) return;
+    navigator.clipboard.writeText(this.scannedValue)
+      .then(() => {
+        this.snackBar.open('Scanned Maps link copied!', 'Close', {
+          duration: 2000
+        });
+      })
+      .catch(err => {
+        console.error('Copy error:', err);
+        this.snackBar.open('Failed to copy link.', 'Close', {
+          duration: 2000
+        });
+      });
   }
 
   scanAgain(): void {
     this.scannedValue = '';
     this.destination = '';
+    this.parsedLocation = null;
+    this.mapPreviewUrl = null;
     this.scannerEnabled = true;
   }
 }
